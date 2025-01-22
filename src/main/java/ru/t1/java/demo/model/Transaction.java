@@ -21,11 +21,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "transaction")
+@Table(name = "transactions")
 public class Transaction extends AbstractPersistable<Long> {
 
     @Column(name = "account_id")
-    private String accountId;
+    private Long accountId;
 
     @Column(name = "amount")
     private BigDecimal amount;
