@@ -19,4 +19,9 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
         <rollback/>
     </changeSet>
 
+    <changeSet id="rename-transaction-amount-column" author="AGashev">
+        <sqlFile encoding="utf8" path="/db/changelog/2024/09/23-01-changelog-01.sql"/>
+        <rollback/>
+    </changeSet>
+
 </databaseChangeLog>
