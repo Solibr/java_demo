@@ -37,6 +37,4 @@ public class KafkaConfig<V> {
         return new DefaultKafkaProducerFactory<>(props);
     }
 
-
-
 }
