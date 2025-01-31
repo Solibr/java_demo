@@ -17,3 +17,10 @@ logging:
 
 t1:
   scan-path: ru.t1.java.demo
+
+kafka:
+  server: "localhost:9092"
+  topic:
+    t1-demo-metrics: t1_demo_metrics
+  header:
+    data-source: DATA_SOURCE
