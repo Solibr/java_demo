@@ -24,3 +24,7 @@ kafka:
     t1-demo-metrics: t1_demo_metrics
   header:
     data-source: DATA_SOURCE
+    metric: METRICS
+
+metric:
+  threshold: 10
