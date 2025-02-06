@@ -7,6 +7,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.t1.java.demo.dto.ClientDto;
@@ -135,7 +136,13 @@ public class TestController {
                 .build();
         transactionResultKafkaTemplate.send("t1_demo_transaction_result", transactionResult);
         return "DONE";
+    }
 
+    @PostMapping("/transaction")
+    public String sendNewTransactionToKafka(Transaction transaction) {
+        transaction.setTransactionId(UUID.randomUUID());
+        transactionKafkaTemplate.send("t1_demo_transactions", transaction);
+        return "TRANSACTION SENT";
     }
 
 }

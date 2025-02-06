@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: t1-java-serviceB
+server:
+  port: 8081
+
+kafka:
+  server: "localhost:9092"

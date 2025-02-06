@@ -44,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void requestTransaction(Transaction transaction) {
+        log.info("Запрошена транзация: {}", transaction.getTransactionId());
         Account account = accountService.getAccountById(transaction.getAccountId());
         if (account.getStatus().equals(AccountStatus.OPEN)) {
             transaction.setStatus(TransactionStatus.REQUESTED);
@@ -82,6 +83,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void finalizeTransaction(TransactionResult transactionResult) {
+        log.info("По транзакции принят результат обработки: {}", transactionResult);
         UUID transactionId = transactionResult.getTransactionId();
         switch(transactionResult.getTransactionStatus()) {
             case ACCEPTED   -> {
