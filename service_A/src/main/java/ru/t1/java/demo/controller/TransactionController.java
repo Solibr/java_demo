@@ -13,6 +13,7 @@ import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.service.TransactionService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,8 +28,8 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.getTransactionById(id));
+    public ResponseEntity<Transaction> getTransactionById(@PathVariable UUID id) {
+        return ResponseEntity.ok(transactionService.getTransactionByTransactionId(id));
     }
 
     @PostMapping

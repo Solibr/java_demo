@@ -46,6 +46,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public UUID deleteById(UUID id) {
         accountRepository.deleteByAccountId(id);
         return id;

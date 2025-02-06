@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.t1.java.demo.dto.ClientDto;
+import ru.t1.java.demo.dto.TransactionResult;
 import ru.t1.java.demo.model.AccounrType;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.AccountStatus;
@@ -32,6 +33,7 @@ public class TestController {
 
     private final KafkaTemplate<String, Account> accountKafkaTemplate;
     private final KafkaTemplate<String, Transaction> transactionKafkaTemplate;
+    private final KafkaTemplate<String, TransactionResult> transactionResultKafkaTemplate;
     private final KafkaTemplate<String, ClientDto> clientDtoKafkaTemplate;
 
     private List<String> messagesList = new ArrayList<>();
@@ -66,6 +68,7 @@ public class TestController {
                 .type(AccounrType.DEBIT)
                 .accountId(UUID.randomUUID())
                 .status(AccountStatus.OPEN)
+                .frozenAmount(BigDecimal.ZERO)
                 .build();
 
         accountKafkaTemplate.send("t1_demo_accounts", testAccount);
@@ -77,7 +80,7 @@ public class TestController {
     public String writeToKafka3() {
         Transaction transaction = Transaction.builder()
                 .transactionId(UUID.randomUUID())
-                .accountId(UUID.fromString("99027367-1b1e-48f2-bc3c-de24050b53b3"))
+                .accountId(UUID.fromString("7b6f03d6-c486-45f5-8488-f562705bd14b"))
                 .amount(new BigDecimal(10L))
                 .time(LocalDateTime.now())
                 .build();
@@ -87,5 +90,52 @@ public class TestController {
     }
 
 
+    @GetMapping("/transaction/accept")
+    public String writeToKafka4() {
+        TransactionResult transactionResult = TransactionResult.builder()
+                .transactionId(UUID.fromString("79f5aac5-6ad3-47d4-adcb-b9e8a0d81e0f"))
+                .accountId(UUID.fromString("7b6f03d6-c486-45f5-8488-f562705bd14b"))
+                .transactionStatus(TransactionStatus.ACCEPTED)
+                .build();
+        transactionResultKafkaTemplate.send("t1_demo_transaction_result", transactionResult);
+        return "DONE";
+
+    }
+
+    @GetMapping("/transaction/accept/{id}")
+    public String writeToKafka5(@PathVariable String id) {
+        TransactionResult transactionResult = TransactionResult.builder()
+                .transactionId(UUID.fromString(id))
+                .accountId(UUID.fromString("7b6f03d6-c486-45f5-8488-f562705bd14b"))
+                .transactionStatus(TransactionStatus.ACCEPTED)
+                .build();
+        transactionResultKafkaTemplate.send("t1_demo_transaction_result", transactionResult);
+        return "DONE";
+
+    }
+
+    @GetMapping("/transaction/block/{id}")
+    public String writeToKafka6(@PathVariable String id) {
+        TransactionResult transactionResult = TransactionResult.builder()
+                .transactionId(UUID.fromString(id))
+                .accountId(UUID.fromString("7b6f03d6-c486-45f5-8488-f562705bd14b"))
+                .transactionStatus(TransactionStatus.BLOCKED)
+                .build();
+        transactionResultKafkaTemplate.send("t1_demo_transaction_result", transactionResult);
+        return "DONE";
+
+    }
+
+    @GetMapping("/transaction/reject/{id}")
+    public String writeToKafka7(@PathVariable String id) {
+        TransactionResult transactionResult = TransactionResult.builder()
+                .transactionId(UUID.fromString(id))
+                .accountId(UUID.fromString("7b6f03d6-c486-45f5-8488-f562705bd14b"))
+                .transactionStatus(TransactionStatus.REJECTED)
+                .build();
+        transactionResultKafkaTemplate.send("t1_demo_transaction_result", transactionResult);
+        return "DONE";
+
+    }
 
 }
