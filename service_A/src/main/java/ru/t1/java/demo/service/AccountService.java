@@ -3,15 +3,16 @@ package ru.t1.java.demo.service;
 import ru.t1.java.demo.model.Account;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AccountService {
     List<Account> getAccounts();
 
-    Account getAccountById(Long id);
+    Account getAccountById(UUID id);
 
     Account createAccount(Account account);
 
-    Account updateAccountById(Long id, Account account);
+    Account updateAccountById(UUID id, Account account);
 
-    Long deleteById(Long id);
+    UUID deleteById(UUID id);
 }

@@ -18,8 +18,7 @@ public class AccountKafkaConsumer {
 
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(groupId = "t1_demo_consumer_group_1", topics = "t1_demo_accounts",
-            containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(groupId = "t1_demo_consumer_group_1", topics = "t1_demo_accounts")
     public void listen(String message) {
 
         Account account = null;

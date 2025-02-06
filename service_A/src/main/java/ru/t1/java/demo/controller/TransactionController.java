@@ -32,8 +32,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(Transaction account) {
-        return ResponseEntity.ok(transactionService.createTransaction(account));
+    public void createTransaction(Transaction account) {
+        transactionService.requestTransaction(account);
     }
 
     @PutMapping("/{id}")

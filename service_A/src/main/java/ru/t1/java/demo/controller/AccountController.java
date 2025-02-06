@@ -13,6 +13,7 @@ import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.service.AccountService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
+    public ResponseEntity<Account> getAccountById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountService.getAccountById(id));
     }
 
@@ -37,12 +38,12 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@PathVariable Long id, Account account) {
+    public ResponseEntity<Account> updateAccount(@PathVariable UUID id, Account account) {
         return ResponseEntity.ok(accountService.updateAccountById(id, account));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> deleteAccount(@PathVariable Long id) {
+    public ResponseEntity<UUID> deleteAccount(@PathVariable UUID id) {
         return ResponseEntity.ok(accountService.deleteById(id));
     }
 

@@ -14,6 +14,7 @@ import ru.t1.java.demo.model.AccounrType;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.AccountStatus;
 import ru.t1.java.demo.model.Transaction;
+import ru.t1.java.demo.model.TransactionStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -76,7 +77,7 @@ public class TestController {
     public String writeToKafka3() {
         Transaction transaction = Transaction.builder()
                 .transactionId(UUID.randomUUID())
-                .accountId(UUID.randomUUID())
+                .accountId(UUID.fromString("99027367-1b1e-48f2-bc3c-de24050b53b3"))
                 .amount(new BigDecimal(10L))
                 .time(LocalDateTime.now())
                 .build();
