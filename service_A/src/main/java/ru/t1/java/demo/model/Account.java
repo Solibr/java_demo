@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,8 +24,11 @@ import java.math.BigDecimal;
 @Table(name = "account")
 public class Account extends AbstractPersistable<Long> {
 
+    @Column(name = "account_id")
+    private UUID accountId;
+
     @Column(name = "client_id")
-    private Long clientId;
+    private UUID clientId;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
@@ -32,5 +36,12 @@ public class Account extends AbstractPersistable<Long> {
 
     @Column(name = "balance")
     private BigDecimal balance;
+
+    @Column(name = "frozen_amount")
+    private BigDecimal frozenAmount;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
 
 }

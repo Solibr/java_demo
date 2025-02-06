@@ -3,10 +3,8 @@ package ru.t1.java.demo.controller;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,13 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.t1.java.demo.dto.ClientDto;
 import ru.t1.java.demo.model.AccounrType;
 import ru.t1.java.demo.model.Account;
+import ru.t1.java.demo.model.AccountStatus;
 import ru.t1.java.demo.model.Transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -57,24 +56,15 @@ public class TestController {
         return messagesList;
     }
 
-    @KafkaListener(id = "myId", topics = "my-topic")
-    public void listenMessages(String message, @Headers Map<String, Object> headers) {
-        messagesList.add(message);
-        headers.forEach((key, value) -> System.out.println(key + ": " + convert(value)));
-    }
-
-    private Object convert(Object obj) {
-        //return new String((byte[]) obj);
-        return obj;
-    }
-
     @GetMapping("/account/{message}")
     public String writeToKafka2(@PathVariable String message) {
         System.out.println(message);
         Account testAccount = Account.builder()
                 .balance(new BigDecimal(50))
-                .clientId(1L)
+                .clientId(UUID.randomUUID())
                 .type(AccounrType.DEBIT)
+                .accountId(UUID.randomUUID())
+                .status(AccountStatus.OPEN)
                 .build();
 
         accountKafkaTemplate.send("t1_demo_accounts", testAccount);
@@ -85,7 +75,8 @@ public class TestController {
     @GetMapping("/transaction")
     public String writeToKafka3() {
         Transaction transaction = Transaction.builder()
-                .accountId(1L)
+                .transactionId(UUID.randomUUID())
+                .accountId(UUID.randomUUID())
                 .amount(new BigDecimal(10L))
                 .time(LocalDateTime.now())
                 .build();
