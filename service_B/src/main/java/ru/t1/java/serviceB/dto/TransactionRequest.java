@@ -16,4 +16,12 @@ public class TransactionRequest {
     private LocalDateTime timestamp;
     private BigDecimal transactionAmount;
     private BigDecimal accountBalance;
+
+    public TransactionResult constructResultWithStatus(TransactionStatus transactionStatus) {
+        return TransactionResult.builder()
+                .transactionId(getTransactionId())
+                .accountId(getAccountId())
+                .transactionStatus(transactionStatus)
+                .build();
+    }
 }

@@ -141,6 +141,7 @@ public class TestController {
     @PostMapping("/transaction")
     public String sendNewTransactionToKafka(Transaction transaction) {
         transaction.setTransactionId(UUID.randomUUID());
+        transaction.setTime(LocalDateTime.now());
         transactionKafkaTemplate.send("t1_demo_transactions", transaction);
         return "TRANSACTION SENT";
     }

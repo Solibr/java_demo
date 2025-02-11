@@ -101,13 +101,15 @@ public class TransactionServiceImpl implements TransactionService {
             }
             case BLOCKED    -> {
                 Transaction transaction = getTransactionByTransactionId(transactionId);
-                transaction.setStatus(TransactionStatus.BLOCKED);
-                Account account = accountService.getAccountById(transactionResult.getAccountId());
-                account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-                account.setStatus(AccountStatus.BLOCKED);
-                account.setFrozenAmount(account.getFrozenAmount().add(transaction.getAmount()));
-                accountService.updateAccountById(account.getAccountId(), account);
-                transactionRepository.save(transaction);
+                if (transaction.getStatus().equals(TransactionStatus.ACCEPTED) || transaction.getStatus().equals(TransactionStatus.REQUESTED)) {
+                    transaction.setStatus(TransactionStatus.BLOCKED);
+                    Account account = accountService.getAccountById(transactionResult.getAccountId());
+                    account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+                    account.setStatus(AccountStatus.BLOCKED);
+                    account.setFrozenAmount(account.getFrozenAmount().add(transaction.getAmount()));
+                    accountService.updateAccountById(account.getAccountId(), account);
+                    transactionRepository.save(transaction);
+                }
             }
             default -> log.error("{}: {}", UNEXPECTED_STATUS_MESSAGE, transactionResult);
         };

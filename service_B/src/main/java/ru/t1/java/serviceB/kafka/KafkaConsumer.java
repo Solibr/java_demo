@@ -7,14 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import ru.t1.java.serviceB.dto.TransactionRequest;
-import ru.t1.java.serviceB.service.TransactionProcessorService;
+import ru.t1.java.serviceB.service.ProcessTransactionService;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
-    private final TransactionProcessorService transactionProcessor;
+    private final ProcessTransactionService transactionProcessor;
+
     private final ObjectMapper objectMapper;
     private final String TRANSACTION_ACCEPT_TOPIC = "t1_demo_transaction_accept";
 
