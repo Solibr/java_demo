@@ -25,6 +25,9 @@ kafka:
   server: "localhost:9092"
   topic:
     t1-demo-metrics: t1_demo_metrics
+    t1-demo-transactions: t1_demo_transactions
+    t1-demo-accounts: t1_demo_accounts
+    t1_demo_transaction_result: t1_demo_transaction_result
   header:
     data-source: DATA_SOURCE
     metric: METRICS

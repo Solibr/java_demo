@@ -6,8 +6,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.t1.java.demo.aop.LogDataSourceError;
+import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.dto.TransactionRequest;
 import ru.t1.java.demo.dto.TransactionResult;
+import ru.t1.java.demo.mapper.TransactionMapper;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.AccountStatus;
 import ru.t1.java.demo.model.Transaction;
@@ -28,24 +30,29 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountServiceImpl accountService;
     private final KafkaTemplate<String, TransactionRequest> kafkaTemplate;
+    private final TransactionMapper transactionMapper;
     private String TRANSACTION_ACCEPT_TOPIC = "t1_demo_transaction_accept";
     private final String UNEXPECTED_STATUS_MESSAGE = "Unexpected transaction status received";
 
     @Override
-    public List<Transaction> getTransactions() {
-        return transactionRepository.findAll();
+    public List<TransactionDto> getTransactions() {
+        return transactionRepository.findAll().stream()
+                .map(transactionMapper::toDto)
+                .toList();
     }
 
     @Override
-    public Transaction getTransactionByTransactionId(UUID id) {
-        return transactionRepository.findByTransactionId(id).orElseThrow();
+    public TransactionDto getTransactionByTransactionId(UUID id) {
+        Transaction transaction = transactionRepository.findByTransactionId(id).orElseThrow();
+        return transactionMapper.toDto(transaction);
     }
 
     @Override
     @Transactional
-    public void requestTransaction(Transaction transaction) {
-        log.info("Запрошена транзация: {}", transaction.getTransactionId());
-        Account account = accountService.getAccountById(transaction.getAccountId());
+    public void requestTransaction(TransactionDto transactionDto) {
+        Transaction transaction = transactionMapper.toEntity(transactionDto);
+        log.info("Запрошена транзация: {}", transactionDto.getTransactionId());
+        Account account = accountService.getAccountEntity(transactionDto.getAccountId());
         if (account.getStatus().equals(AccountStatus.OPEN)) {
             transaction.setStatus(TransactionStatus.REQUESTED);
             transaction = transactionRepository.save(transaction);
@@ -60,23 +67,26 @@ public class TransactionServiceImpl implements TransactionService {
                     .build();
 
             account.setBalance(account.getBalance().add(transaction.getAmount()));
-            accountService.updateAccountById(account.getAccountId(), account);
+            accountService.updateAccountEntity(account);
             kafkaTemplate.send(TRANSACTION_ACCEPT_TOPIC, transactionRequest);
         }
     }
 
     @Override
-    public Transaction updateTransactionById(Long id, Transaction transaction) {
-        Transaction transactionToUpdate = transactionRepository.findById(id).get();
+    public TransactionDto updateTransactionById(UUID id, TransactionDto transactionDto) {
+        Transaction transactionToUpdate = transactionRepository.findByTransactionId(id).orElseThrow();
+        Transaction transaction = transactionMapper.toEntity(transactionDto);
         transactionToUpdate.setAccountId(transaction.getAccountId());
         transactionToUpdate.setTime(transaction.getTime());
         transactionToUpdate.setAmount(transaction.getAmount());
-        return transactionRepository.save(transactionToUpdate);
+        Transaction savedTransaction = transactionRepository.save(transactionToUpdate);
+        return transactionMapper.toDto(savedTransaction);
     }
 
+    @Transactional
     @Override
-    public Long deleteById(Long id) {
-        transactionRepository.deleteById(id);
+    public UUID deleteById(UUID id) {
+        transactionRepository.deleteByTransactionId(id);
         return id;
     }
 
@@ -87,27 +97,27 @@ public class TransactionServiceImpl implements TransactionService {
         UUID transactionId = transactionResult.getTransactionId();
         switch(transactionResult.getTransactionStatus()) {
             case ACCEPTED   -> {
-                Transaction transaction = getTransactionByTransactionId(transactionId);
+                Transaction transaction = transactionRepository.findByTransactionId(transactionId).orElseThrow();
                 transaction.setStatus(TransactionStatus.ACCEPTED);
                 transactionRepository.save(transaction);
             }
             case REJECTED   -> {
-                Transaction transaction = getTransactionByTransactionId(transactionId);
+                Transaction transaction = transactionRepository.findByTransactionId(transactionId).orElseThrow();
                 transaction.setStatus(TransactionStatus.REJECTED);
-                Account account = accountService.getAccountById(transactionResult.getAccountId());
+                Account account = accountService.getAccountEntity(transactionResult.getAccountId());
                 account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-                accountService.updateAccountById(account.getAccountId(), account);
+                accountService.updateAccountEntity(account);
                 transactionRepository.save(transaction);
             }
             case BLOCKED    -> {
-                Transaction transaction = getTransactionByTransactionId(transactionId);
+                Transaction transaction = transactionRepository.findByTransactionId(transactionId).orElseThrow();
                 if (transaction.getStatus().equals(TransactionStatus.ACCEPTED) || transaction.getStatus().equals(TransactionStatus.REQUESTED)) {
                     transaction.setStatus(TransactionStatus.BLOCKED);
-                    Account account = accountService.getAccountById(transactionResult.getAccountId());
+                    Account account = accountService.getAccountEntity(transactionResult.getAccountId());
                     account.setBalance(account.getBalance().subtract(transaction.getAmount()));
                     account.setStatus(AccountStatus.BLOCKED);
                     account.setFrozenAmount(account.getFrozenAmount().add(transaction.getAmount()));
-                    accountService.updateAccountById(account.getAccountId(), account);
+                    accountService.updateAccountEntity(account);
                     transactionRepository.save(transaction);
                 }
             }

@@ -1,6 +1,5 @@
 package ru.t1.java.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,7 +37,6 @@ public class Transaction extends AbstractPersistable<Long> {
 
     @CreationTimestamp
     @Column(name = "time")
-    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime time;
 
     @Column(name = "status")

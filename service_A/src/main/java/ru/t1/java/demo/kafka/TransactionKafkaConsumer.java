@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.dto.TransactionResult;
-import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.service.TransactionService;
 
 @Slf4j
@@ -27,8 +27,8 @@ public class TransactionKafkaConsumer {
     public void listen(String message) throws Exception {
 
         try {
-            Transaction transaction = objectMapper.readValue(message, Transaction.class);
-            transactionService.requestTransaction(transaction);
+            TransactionDto transactionDto = objectMapper.readValue(message, TransactionDto.class);
+            transactionService.requestTransaction(transactionDto);
         } catch (JsonProcessingException e) {
             log.error("Не удалось прочитать сообщение: {}", message);
         }
