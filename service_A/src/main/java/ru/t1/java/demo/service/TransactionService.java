@@ -1,17 +1,21 @@
 package ru.t1.java.demo.service;
 
-import ru.t1.java.demo.model.Transaction;
+import ru.t1.java.demo.dto.TransactionDto;
+import ru.t1.java.demo.dto.TransactionResult;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface TransactionService {
-    List<Transaction> getTransactions();
+    List<TransactionDto> getTransactions();
 
-    Transaction getTransactionById(Long id);
+    TransactionDto getTransactionByTransactionId(UUID id);
 
-    Transaction createTransaction(Transaction transaction);
+    void requestTransaction(TransactionDto transaction);
 
-    Transaction updateTransactionById(Long id, Transaction transaction);
+    TransactionDto updateTransactionById(UUID id, TransactionDto transaction);
 
-    Long deleteById(Long id);
+    UUID deleteById(UUID id);
+
+    void finalizeTransaction(TransactionResult transactionResult);
 }

@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.t1.java.demo.model.Transaction;
+import ru.t1.java.demo.dto.TransactionDto;
+import ru.t1.java.demo.dto.TransactionResult;
 import ru.t1.java.demo.service.TransactionService;
 
 @Slf4j
@@ -18,18 +19,31 @@ public class TransactionKafkaConsumer {
 
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(groupId = "t1_demo_consumer_group_1", topics = "t1_demo_transactions",
-            containerFactory = "kafkaListenerContainerFactory")
-    public void listen(String message) {
+    private final String TRANSACTIONS_TOPIC = "t1_demo_transactions";
 
-        Transaction transaction = null;
+    private final String TRANSACTION_RESULT = "t1_demo_transaction_result";
+
+    @KafkaListener(groupId = "t1_demo_consumer_group_1", topics = TRANSACTIONS_TOPIC)
+    public void listen(String message) throws Exception {
+
         try {
-            transaction = objectMapper.readValue(message, Transaction.class);
+            TransactionDto transactionDto = objectMapper.readValue(message, TransactionDto.class);
+            transactionService.requestTransaction(transactionDto);
         } catch (JsonProcessingException e) {
             log.error("Не удалось прочитать сообщение: {}", message);
         }
-
-        transactionService.createTransaction(transaction);
     }
+
+    @KafkaListener(groupId = "t1_demo_consumer_group_1", topics = TRANSACTION_RESULT)
+    public void listenResult(String message) throws Exception {
+
+        try {
+            TransactionResult transactionResult = objectMapper.readValue(message, TransactionResult.class);
+            transactionService.finalizeTransaction(transactionResult);
+        } catch (JsonProcessingException e) {
+            log.error("Не удалось прочитать сообщение: {}", message);
+        }
+    }
+
 
 }

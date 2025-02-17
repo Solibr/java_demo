@@ -34,7 +34,7 @@ public class DataSourceErrorLoggingAspect {
     public void methodOrClass() {
     }
 
-    @AfterThrowing(pointcut = "methodOrClass()", throwing = "ex")
+    @AfterThrowing(pointcut = "methodOrClass()", throwing = "exception")
     public void logDataSourceError(JoinPoint joinPoint, Throwable exception) {
         DataSourceErrorLog dataSourceErrorLog = DataSourceErrorLog.builder()
                 .methodSignature(joinPoint.getSignature().toString())

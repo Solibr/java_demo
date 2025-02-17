@@ -1,49 +1,60 @@
 package ru.t1.java.demo.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.t1.java.demo.dto.ClientDto;
+import ru.t1.java.demo.mapper.ClientMapper;
 import ru.t1.java.demo.model.Client;
 import ru.t1.java.demo.repository.ClientRepository;
 import ru.t1.java.demo.service.ClientService;
-import ru.t1.java.demo.util.ClientMapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
+
     private final ClientRepository repository;
 
-    @PostConstruct
-    void init() {
-        try {
-            List<Client> clients = parseJson();
-        } catch (IOException e) {
-            log.error("Ошибка во время обработки записей", e);
-        }
-//        repository.saveAll(clients);
+    private final ClientMapper clientMapper;
+
+    @Override
+    public List<ClientDto> getClients() {
+        return repository.findAll().stream()
+                .map(clientMapper::toDto)
+                .toList();
     }
 
     @Override
-//    @LogExecution
-//    @Track
-//    @HandlingResult
-    public List<Client> parseJson() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+    public ClientDto getClientById(UUID uuid) {
+        Client client = repository.findByClientId(uuid).orElseThrow();
+        return clientMapper.toDto(client);
+    }
 
-        ClientDto[] clients = mapper.readValue(new File("src/main/resources/MOCK_DATA.json"), ClientDto[].class);
+    @Override
+    public ClientDto createClient(ClientDto clientDto) {
+        Client client = clientMapper.toEntity(clientDto);
+        client.setClientId(UUID.randomUUID());
+        Client savedClient = repository.save(client);
+        return clientMapper.toDto(savedClient);
+    }
 
-        return Arrays.stream(clients)
-                .map(ClientMapper::toEntity)
-                .collect(Collectors.toList());
+    @Override
+    public ClientDto updateClientById(UUID uuid, ClientDto clientDto) {
+        Client clientToUpdate = repository.findByClientId(uuid).orElseThrow();
+        Client client = clientMapper.toEntity(clientDto);
+        clientToUpdate.setFirstName(client.getFirstName());
+        clientToUpdate.setLastName(client.getLastName());
+        clientToUpdate.setMiddleName(client.getMiddleName());
+        Client updatedClient = repository.save(clientToUpdate);
+        return clientMapper.toDto(updatedClient);
+    }
+
+    @Override
+    public UUID deleteById(UUID uuid) {
+        return repository.deleteByClientId(uuid);
     }
 }

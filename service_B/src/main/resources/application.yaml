@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: t1-java-serviceB
+server:
+  port: 8081
+
+kafka:
+  server: "localhost:9092"
+  topic:
+    transaction-result: "t1_demo_transaction_result"
+
+transactions-blocking:
+  transactions-count: 5
+  time-interval-ms: 10000
